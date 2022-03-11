@@ -18,49 +18,64 @@
 |
 */
 
+import { Response } from '@adonisjs/core/build/standalone'
 import Route from '@ioc:Adonis/Core/Route'
 import User from 'App/Models/User'
 
-Route.resource("/User", "UsersController").apiOnly()
+Route.group(()=>{
+  Route.resource("/User", "UsersController").apiOnly()
+})
 
 
-Route.post('/login', async ({ auth, request, response }) => {
+Route.post('login', async ({ auth, request, response }) => {
   const email = request.input('email')
   const password = request.input('password')
 
   try {
     const token = await auth.use('api').attempt(email, password)
-
-    await auth.use('api').attempt(email, password, {
-      expiresIn: '7days'
-    })
-
     return token
   } catch {
     return response.badRequest('Invalid credentials')
   }
 })
 
+// Route.post('/login', async ({ auth, request, response }) => {
+//   const email = request.input('email')
+//   const password = request.input('password')
+
+//   try {
+//     const token = await auth.use('api').attempt(email, password)
+
+//     await auth.use('api').attempt(email, password, {
+//       expiresIn: '7days'
+//     })
+
+//     return token
+//   } catch {
+//     return response.badRequest('Invalid credentials')
+//   }
+// })
 
 
 
-Route.get('/dashboard', async ({ auth }) => {
-  console.log(auth)
-  
-  const u = await auth.use('api').authenticate()
-  console.log(u)
-  // ✅ Request authenticated
-  //console.log(auth.user!)
+Route.get('dashboard', async ({ auth, response }) => {
+  await auth.use('api').authenticate()
+  console.log(auth.use('api').user!)
+  response.json({
+    res: true, 
+    massage : "Usuario Autorizado"
+  })
 })
 
+Route.group(()=>{
 
+}).middleware('auth')
 
 
 
 Route.post('/logout', async ({ auth, response }) => {
   await auth.use('api').revoke()
-  console.log(auth)
   return {
-    revoked: true, 
+    revoked: true
   }
 })

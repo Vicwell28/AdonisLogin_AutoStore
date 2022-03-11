@@ -19,6 +19,17 @@ export default class UsersController {
     return user
   }
 
+  public async cargarImg({request, response, params}:HttpContextContract){
+
+    const coverImage = request.file('img', {
+      size: '2mb',
+      extnames: ['jpg', 'png', 'gif'],
+    })
+
+    //const nombreArchivo = params.id + "." + coverImage.extname;
+    
+  }
+
   public async show({}: HttpContextContract) {
 
   }
